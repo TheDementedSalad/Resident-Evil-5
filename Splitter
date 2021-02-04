@@ -9,9 +9,10 @@ state("re5dx9")
 	
 	int newLevelNumber : 0xDA23D8, 0x273d0;  //Steam 1.1.0
 	float newIGT : 0xDA23D8, 0x27410;  //Steam 1.1.0
-    int menu: 0xDA2970, 0x1F8, 0x540, 0x3A4; //Steam 1.1.0
+    	int menu: 0xDA2970, 0x1F8, 0x540, 0x3A4; //Steam 1.1.0
 	float pause: 0xDA1F8C, 0x53C;
 	int DA: 0x00DA1F8C, 0x640, 0x634, 0x42C;
+	int inCutscene: 0xE39F7C, 0x90, 0xB4, 0x4, 0x4, 0x4, 0x0, 0x288;
 }
 
 state("re5dx10")
@@ -35,7 +36,7 @@ startup
 	settings.CurrentDefaultParent = "1.1.0";
 	settings.Add("NG", true, "NG");
 	settings.SetToolTip("NG", "Check this box if you are playing the Steam 1.1.0 version and are running NG");
-    settings.Add("NG+", true, "NG+");
+    	settings.Add("NG+", true, "NG+");
 	settings.SetToolTip("NG+", "Check this box if you are playing the Steam 1.1.0 version and are running NG+");
 	settings.Add("Individual levels");
 	settings.SetToolTip("Individual levels", "Check this box if you are playing the Steam 1.1.0 version and are running Individual levels");
@@ -114,15 +115,15 @@ split
 
 isLoading
 {
+	// Mattmatt added a fix so that the timer won't pause during the Wesker QTE sequence in 6-3
 	// Settings for 1.1.0
 	if(settings["NG"]){
-		
-		if((current.menu != 3 && current.pause != 1 && current.DA == 0 || current.menu == 4 && current.pause != 1) && current.newIGT == old.newIGT){
+		if((current.menu != 3 && current.pause != 1 && current.DA == 0 || current.menu == 4 && current.pause != 1) && current.newIGT == old.newIGT && current.inCutscene != 1){
 			return true;
 		}
-        else{
-            return false;
-        }
+        	else{
+            		return false;
+        	}
 	}
 	
 	// Settings for pre patch
