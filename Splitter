@@ -1,9 +1,9 @@
-// Resident Evil 5 Autosplitter Version 2.0 29/01/2021
-// NG supports LRT & RTA
-// NG+ & Individual Level Runs support IGT
+// Resident Evil 5 Autosplitter Version 2.0.6 11/11/2021
+// NG supports LRT
+// NG+, DLC and IL Runs support IGT
 // Supports all difficulties
 // Splits can be obtained from https://www.speedrun.com/re5/resources
-// Script and Remodification by Mysterion06, TheDementedSalad & Mattmatt
+// Script and Remodification by Mysterion06, TheDementedSalad
 // Pointers by Dread, Austin "Auddy" Davenport, Wipefinger, Mysterion06, TheDementedSalad & Mattmatt
 
 // Special thanks to 
@@ -12,91 +12,110 @@
 
 state("re5dx9")
 {
-	int newLevelNumber : 0xDA23D8, 0x273d0;
-	float newIGT : 0xDA23D8, 0x273F8;
-    int menu: 0xDA2970, 0x1F8, 0x540, 0x3A4;
-	float pause: 0xDA1F8C, 0x53C;
-	int DA: 0xDA1F8C, 0x640, 0x634, 0x42C;
-	int inCutscene: 0xE39F7C, 0x90, 0xB4, 0x4, 0x4, 0x4, 0x0, 0x288;
+	byte Level: 0xDA23D8, 0x273D0;
+	float IGT: 0xDA23D8, 0x273F8;
+	int P1ItemID: 0xDA1934, 0xEBC;
+	int P2ItemID: 0xDA1934, 0xF38;
+	int P2Pickup: 0xDA2A5C, 0x28, 0x10DC, 0x13C, 0x264;
+	byte Cutscene: 0xDA1934, 0xDB8;
+	byte gameState: 0xDA2970, 0x84, 0x4BC, 0x3A4;
+	float Paused: 0xDA1F8C, 0x53C;
+	byte Loading: 0xDA244F;
+	ushort areaCode: 0xDA23D8, 0x273D8;
+	int keyItem: 0xDA2970, 0x84, 0x18;
+	
 }
 
 startup
-{
-	settings.Add("NG", true, "NG");
-	settings.SetToolTip("NG", "Tick this box if you're running NG");
-	settings.Add("NG+", false, "NG+");
-	settings.SetToolTip("NG+", "Tick this box if you're running NG+");
-	settings.Add("Individual Level Runs", false, "Individual Level Runs (IGT)");
-	settings.SetToolTip("Individual Level Runs", "Tick this box if you're running Individual levels (Timed via IGT)");
-}
+{	
+	vars.LvlStorage = new List<int>()
+	{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+	
+	vars.DLCStorage = new List<int>()
+	{1312,1313,1314,1315,1316,1317,1318,1319,1320,1321,1322,1323,1324,1325,1326,1327,1328,1329,1330};
 
-init
-{
+	settings.Add("NG", false, "New Game (LRT)");
+	settings.Add("NG+", false, "New Game + (IGT)");
+	settings.Add("DLC", false, "DLC (IGT)");
+	settings.Add("IL", false, "Individual Levels (IGT)");
+	
 	vars.totalGameTime = 0;
+		
 }
 
 start
 {
-	if(settings["NG"] || settings["NG+"]){
-		if(current.newLevelNumber == 0 && current.newIGT > old.newIGT && current.menu == 6){
-			vars.totalGameTime = 0;
-			return true;
-		}
-	}
+	vars.totalGameTime = 0;
 	
-	if(settings["Individual Level Runs"]){
-		if(current.newIGT > old.newIGT && current.menu == 6){
-			vars.totalGameTime = 0;
-			return true;
-		}
+	if(settings["NG"] || settings["NG+"]){
+		return vars.LvlStorage.Contains(current.Level) && current.IGT > old.IGT && current.gameState == 6;
+	}
+	if(settings["DLC"]){
+		return current.IGT > old.IGT && current.gameState == 6;
 	}
 }
 
 split
 {
-	if(settings["NG"] || settings["NG+"] || settings["Individual Level Runs"]){
-		if(current.newLevelNumber > old.newLevelNumber){
-			return true;
+	if(settings["NG"] || settings["NG+"] || settings ["IL"]){
+		return current.Level > old.Level;
 			vars.totalGameTime = 0;
 		}
-	}
+	if(settings["DLC"]){
+		return current.P1ItemID != old.P1ItemID && vars.DLCStorage.Contains(current.P1ItemID) ||
+		   current.P2ItemID != old.P2ItemID && vars.DLCStorage.Contains(current.P2ItemID) || 
+		   current.keyItem != old.keyItem && current.keyItem == 1315 ||
+		   current.P2Pickup == 1 && old.P2Pickup == 0 && current. P1ItemID == 269 ||
+		   (current.areaCode == 619 || current.areaCode == 617) && current.Cutscene != old.Cutscene && current.Cutscene == 0 ||
+		   current.areaCode != old.areaCode && current.areaCode == 703 && current.P2ItemID == 284;
+		}
 }
 	
 isLoading
 {
 	if(settings["NG"]){
-		
-		if((current.menu != 3 && current.pause != 1 && current.DA == 0 || current.menu == 4 && current.pause != 1) && current.newIGT == old.newIGT && current.inCutscene != 1){
+		if(current.Loading == 97 || current.Paused == 0.5 || current.gameState == 1){
 			return true;
 		}
         else{
             return false;
         }
 	}
-	
-	if(settings["NG+"] || settings["Individual Level Runs"]){
+	else {
 		return true;
 	}
 }
 
 gameTime
 {
-	if(settings["NG+"] || settings["Individual Level Runs"]){
-		if(current.newIGT > old.newIGT){
-			return TimeSpan.FromSeconds(System.Math.Floor(current.newIGT));
+	if(settings["NG+"] || settings ["DLC"]  || settings["IL"]){
+		if(current.IGT > old.IGT){
+			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
 		}
-		if(current.newIGT == 0 && old.newIGT > 0 && current.newLevelNumber != old.newLevelNumber){
-			vars.totalGameTime = System.Math.Floor(vars.totalGameTime + old.newIGT);
-			return TimeSpan.FromSeconds(vars.totalGameTime);
+		if(current.IGT < old.IGT && current.Level == old.Level){
+			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
 		}
+		if(current.IGT == 0 && old.IGT > 0 && current.Level != old.Level){
+			vars.totalGameTime = System.Math.Floor(vars.totalGameTime + old.IGT);
+			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
+		}
+	}
+	if(settings["IL"]){
+		return TimeSpan.FromSeconds(current.IGT);
 	}
 }
 
 reset
 {
+	vars.totalGameTime = 0;
+	
 	if(settings["NG"] || settings["NG+"]){
-		if(current.newLevelNumber == 0 && current.newIGT == 0){
-			return true;
-		}
+		return current.Level == 0 && current.IGT == 0 && current.gameState == 6;
+	}
+	if(settings["DLC"]){
+		return old.IGT != current.IGT && current.IGT == 0;
+	}
+	if(settings["IL"]){
+		return vars.LvlStorage.Contains(current.Level) && current.IGT > old.IGT && old.IGT == 0 && current.gameState == 6;
 	}
 }
