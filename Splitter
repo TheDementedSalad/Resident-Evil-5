@@ -35,6 +35,7 @@ startup
 	{1312,1313,1314,1315,1316,1317,1318,1319,1320,1321,1322,1323,1324,1325,1326,1327,1328,1329,1330};
 
 	settings.Add("NG", false, "New Game (LRT)");
+	settings.Add("No1-1", false, "No 1-1 (LRT)");
 	settings.Add("NG+", false, "New Game + (IGT)");
 	settings.Add("DLC", false, "DLC (IGT)");
 	settings.Add("IL", false, "Individual Levels (IGT)");
@@ -43,11 +44,16 @@ startup
 		
 }
 
+update{
+    if (timer.CurrentPhase == TimerPhase.NotRunning)
+    {
+        vars.totalGameTime = 0;
+    }
+}
+
 start
 {
-	vars.totalGameTime = 0;
-	
-	if(settings["NG"] || settings["NG+"]){
+	if(settings["NG"] || settings["NG+"] || settings["IL"] || settings["No1-1"]){
 		return vars.LvlStorage.Contains(current.Level) && current.IGT > old.IGT && current.gameState == 6;
 	}
 	if(settings["DLC"]){
@@ -57,9 +63,8 @@ start
 
 split
 {
-	if(settings["NG"] || settings["NG+"] || settings ["IL"]){
+	if(settings["NG"] || settings["NG+"] || settings ["IL"] || settings["No1-1"]){
 		return current.Level > old.Level;
-			vars.totalGameTime = 0;
 		}
 	if(settings["DLC"]){
 		return current.P1ItemID != old.P1ItemID && vars.DLCStorage.Contains(current.P1ItemID) ||
@@ -73,7 +78,7 @@ split
 	
 isLoading
 {
-	if(settings["NG"]){
+	if(settings["NG"] || settings["No1-1"]) {
 		if(current.Loading == 97 || current.Paused == 0.5 || current.gameState == 1){
 			return true;
 		}
@@ -88,7 +93,7 @@ isLoading
 
 gameTime
 {
-	if(settings["NG+"] || settings ["DLC"]  || settings["IL"]){
+	if(settings["NG+"] || settings ["DLC"]){
 		if(current.IGT > old.IGT){
 			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
 		}
@@ -107,10 +112,11 @@ gameTime
 
 reset
 {
-	vars.totalGameTime = 0;
-	
 	if(settings["NG"] || settings["NG+"]){
 		return current.Level == 0 && current.IGT == 0 && current.gameState == 6;
+	}
+	if(settings["No1-1"]){
+		return current.Level == 1 && current.IGT == 0 && current.gameState == 6;
 	}
 	if(settings["DLC"]){
 		return old.IGT != current.IGT && current.IGT == 0;
