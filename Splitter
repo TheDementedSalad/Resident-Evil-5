@@ -54,7 +54,7 @@ update{
 start
 {
 	if(settings["NG"] || settings["NG+"] || settings["IL"] || settings["No1-1"]){
-		return vars.LvlStorage.Contains(current.Level) && current.IGT > old.IGT && current.gameState == 6;
+		return (current.gameState == 6 || current.gameState == 7) && vars.LvlStorage.Contains(current.Level) && current.IGT > old.IGT;
 	}
 	if(settings["DLC"]){
 		return current.IGT > old.IGT && current.gameState == 6;
