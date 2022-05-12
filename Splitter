@@ -17,7 +17,7 @@ state("re5dx9")
 	int P1ItemID: 0xDA1934, 0xEBC;
 	int P2ItemID: 0xDA1934, 0xF38;
 	int P2Pickup: 0xDA2A5C, 0x28, 0x10DC, 0x13C, 0x264;
-	byte Cutscene: 0xDA1934, 0xDB8;
+	byte Cutscene: 0xE24998, 0x70, 0xE4, 0x4, 0x578;
 	byte gameState: 0xDA2970, 0x84, 0x4BC, 0x3A4;
 	float Paused: 0xDA1F8C, 0x53C;
 	byte Loading: 0xDA244F;
@@ -54,7 +54,7 @@ update{
 start
 {
 	if(settings["NG"] || settings["NG+"] || settings["IL"] || settings["No1-1"]){
-		return (current.gameState == 6 || current.gameState == 7) && vars.LvlStorage.Contains(current.Level) && current.IGT > old.IGT;
+		return vars.LvlStorage.Contains(current.Level) && current.IGT > old.IGT && current.gameState == 6;
 	}
 	if(settings["DLC"]){
 		return current.IGT > old.IGT && current.gameState == 6;
@@ -79,25 +79,19 @@ split
 isLoading
 {
 	if(settings["NG"] || settings["No1-1"]) {
-		if(current.Loading == 97 || current.Paused == 0.5 || current.gameState == 1){
+		if(current.Loading == 97 || current.Paused == 0.5 || current.gameState == 1 || current.Cutscene == 7 || current.gameState != 6 && current.gameState != 3){
 			return true;
 		}
         else{
             return false;
         }
 	}
-	else {
-		return true;
-	}
 }
 
 gameTime
 {
-	if(settings["NG+"] || settings ["DLC"]){
+	if(settings["NG+"]){
 		if(current.IGT > old.IGT){
-			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
-		}
-		if(current.IGT < old.IGT && current.Level == old.Level){
 			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
 		}
 		if(current.IGT == 0 && old.IGT > 0 && current.Level != old.Level){
@@ -108,6 +102,10 @@ gameTime
 	if(settings["IL"]){
 		return TimeSpan.FromSeconds(current.IGT);
 	}
+	if(settings ["DLC"]){
+			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
+	}
+	
 }
 
 reset
