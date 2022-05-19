@@ -79,7 +79,7 @@ split
 isLoading
 {
 	if(settings["NG"] || settings["No1-1"]) {
-		if(current.Loading == 97 || current.Paused == 0.5 || current.gameState == 1 || current.Cutscene == 7 || current.gameState != 6 && current.gameState != 3){
+		if(current.Loading == 97 || current.Paused == 0.5 || current.gameState == 1 || current.Cutscene == 7 || current.gameState != 6 && current.gameState != 3 && current.gameState != 7){
 			return true;
 		}
         else{
