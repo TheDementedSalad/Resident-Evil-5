@@ -65,7 +65,7 @@ split
 {
 	if(settings["NG"] || settings["NG+"] || settings ["IL"] || settings["No1-1"]){
 		return current.Level > old.Level;
-		}
+	}
 	if(settings["DLC"]){
 		return current.P1ItemID != old.P1ItemID && vars.DLCStorage.Contains(current.P1ItemID) ||
 		   current.P2ItemID != old.P2ItemID && vars.DLCStorage.Contains(current.P2ItemID) || 
@@ -73,7 +73,7 @@ split
 		   current.P2Pickup == 1 && old.P2Pickup == 0 && current. P1ItemID == 269 ||
 		   (current.areaCode == 619 || current.areaCode == 617) && current.Cutscene != old.Cutscene && current.Cutscene == 0 ||
 		   current.areaCode != old.areaCode && current.areaCode == 703 && current.P2ItemID == 284;
-		}
+	}
 }
 	
 isLoading
@@ -85,6 +85,9 @@ isLoading
         else{
             return false;
         }
+	}
+	if(settings["NG+"] || settings["IL"] || settings["DLC"]) {
+		return true;
 	}
 }
 
@@ -103,7 +106,7 @@ gameTime
 		return TimeSpan.FromSeconds(current.IGT);
 	}
 	if(settings ["DLC"]){
-			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
+		return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
 	}
 	
 }
