@@ -80,7 +80,7 @@ startup
 update{
     if (timer.CurrentPhase == TimerPhase.NotRunning)
     {
-		vars.completedSplits = new List<string>();
+		vars.completedSplits.Clear();
 		vars.Rocket = 0;
         vars.totalGameTime = 0;
     }
@@ -192,4 +192,3 @@ reset
 		return vars.LvlStorage.Contains(current.Level) && current.IGT > old.IGT && old.IGT == 0 && current.newCut == 2;
 	}
 }
-
