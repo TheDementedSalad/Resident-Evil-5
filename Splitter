@@ -168,7 +168,7 @@ gameTime
 		if(current.IGT > old.IGT){
 			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
 		}
-		if(current.IGT == 0 && old.IGT > 0 && current.Level != old.Level){
+		if(current.IGT == 0 && old.IGT > 0){
 			vars.totalGameTime = System.Math.Floor(vars.totalGameTime + old.IGT);
 			return TimeSpan.FromSeconds(System.Math.Floor(vars.totalGameTime + current.IGT));
 		}
