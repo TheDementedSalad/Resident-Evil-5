@@ -150,7 +150,7 @@ split
 isLoading
 {
 	if(settings["NG"] || settings["No1-1"]) {
-		if(current.newCut == 3 && current.HP != 0 || current.newCut != 2 && current.newCut != 3 && current.HP != 0 || current.menu == 1 || current.isPaused == 8 && current.newCut != 3 || current.PauseBuff != 1 || current.newCut == 7){
+		if(current.newCut == 3 && current.HP != 0 || current.newCut != 2 && current.newCut != 3 && current.HP != 0 || current.menu == 1 || current.isPaused == 8 && current.newCut != 3 || current.PauseBuff != 1 && current.IGT == old.IGT || current.newCut == 7){
 			return true;
 		}
         else{
