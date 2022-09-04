@@ -1,4 +1,4 @@
-// Resident Evil 5 Autosplitter Version 2.1.0 (24/06/2022)
+// Resident Evil 5 Autosplitter Version 3.0 (4/9/2022)
 // Supports LRT
 // Supports all difficulties
 // Splits can be obtained from https://www.speedrun.com/re5/resources
@@ -23,7 +23,7 @@ state("re5dx9")
 	int    P2Pickup: 	0xDA2A5C, 0x28, 0x10DC, 0x13C, 0x264; 		// 1 if Player 2 is in pickup animation (DLC)
 	int    keyItem: 	0xDA2970, 0x84, 0x18;				// Latest picked up key item (doesn't change on checkpoint reset)
 	float  IGT: 		0xDA23D8, 0x273F8;				// Gametime
-	float  PauseBuff: 	0xDA1F8C, 0x53C;			        // 0.5 paused in game, 0 in shops, 1 in cutscenes (Catches any time bleed between pauses)
+	float  PauseBuff: 	0xDA1F8C, 0x53C;				// 0.5 paused in game, 0 in shops, 1 in cutscenes (Catches any time bleed between pauses)
 	
 }
 
@@ -35,12 +35,12 @@ startup
 	vars.completedSplits = new List<string>();
 	vars.Rocket = 0;
 	
-	settings.Add("Main", false, "Main Game Extras");
+	settings.Add("Main", false, "Enable Main Game");
 	settings.CurrentDefaultParent = "Main";
 	settings.Add("No1-1", false, "Enable No 1-1");
 	settings.Add("IL", false, "Enable Individual Levels");
 	settings.CurrentDefaultParent = null;
-	settings.Add("DLC", false, "DLC's & Item Splits");
+	settings.Add("DLC", false, "Enable DLC's & Item Splits");
 	settings.CurrentDefaultParent = "DLC";
 	settings.Add("LiN", false, "Lost in Nightmares");
 	settings.CurrentDefaultParent = "LiN";
@@ -87,13 +87,13 @@ start
 
 split
 {
-	if(current.Level > old.Level){
-		return true;
-	}
-		
-	if(current.QTE == 0 && old.QTE == 1 && current.newCut == 4 && current.areaCode == 508){
-		return true;
-	}
+		if(current.newCut == 7 && old.newCut != 7){
+			return true;
+		}
+			
+		if(current.QTE == 0 && old.QTE == 1 && current.newCut == 4 && current.areaCode == 508){
+			return true;
+		}
 	
 	if(settings ["DLC"]){
 		vars.hashString = current.keyItem.ToString();
@@ -103,18 +103,6 @@ split
 			{
 				vars.completedSplits.Add(vars.hashString);
 				return true;
-			}
-		}
-	
-		if(settings["LiNEnd"]){
-			if(current.areaCode == 617 && current.newCut == 7 && old.newCut != 7){
-				return settings["LiNEnd"];
-			}
-		}
-				
-		if(settings["DEEnd"]){
-			if(current.areaCode == 619 && current.newCut == 7 && old.newCut != 7){
-				return settings["DEEnd"];
 			}
 		}
 	}
